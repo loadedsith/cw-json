@@ -1,55 +1,144 @@
 <!doctype html>
 <html>
 <head>
-  <title>Displaying JSON Data w/jQuery</title>
+  <title>Course Work Google Maps</title>
   <style type="text/css">
-    body {
-      background: #e1e1e1;
-    }
-
-    #wrapper {
-      width: 70%;
-      padding: 40px 5%;
-      margin: 0 auto;
-      box-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
-      background: #fff;
-    }
-
-    #game-list {
-      margin: 20px 0;
-    }
-
-    .game {
-      float: left;
-      margin: 0 10px 10px 0;
-    }
-
-    .game img {
-      display: block;
-      width: 150px;
-      height: auto;
-    }
-
-    .clearfix:after {
-      content: "";
-      display: table;
-      clear: both;
-    }
+	  #map{
+		  width: 1000px;
+		  height:600px;
+		  border:1px solid blue;
+	  }
   </style>
 </head>
 <body>
-  <div id="wrapper">
-    <h1>NES Video Games!</h1>
-
-    <button id="show-games">Let's See The Games!</button>
-
-    <!-- put all the games inside this container -->
-    <section id="game-list" class="clearfix"></section>
+  <div id="map">
   </div>
+  <script src="http://maps.google.com/maps/api/js?sensor=false"></script>
+  <script>
+	  // variables to hold raw lat/lng values
+	  // we'll be using the coordinates of 916 S Wabash
+	  var lat = 41.869977;
+	  var lng = -87.626381;
 
-  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-  <script src="data.js"></script> <!-- this is the JSON data -->
+	  // variable to hold Google lat/lng object
+	  var glatlng;
 
-  <script src="games.js"></script>
+	  // variable to hold map display options
+	  var map_options;
+
+	  // variable to hold a reference to the google map
+	  var gmap;
+	  glatlng = new google.maps.LatLng(lat, lng);
+	  map_options = {
+	    zoom: 14,
+	    center: glatlng,
+	    mapTypeId: google.maps.MapTypeId.ROADMAP,
+	    mapTypeControl: false
+	  };
+	  gmap = new google.maps.Map(document.querySelector('#map'), map_options);
+	  var marker1_options = {
+	    position: glatlng,
+	    map: gmap,
+	    title: "Church of Reason",
+		animation: google.maps.Animation.DROP,
+	    icon: 'app.png'
+	  };
+	  var marker1 = new google.maps.Marker(marker1_options);
+	  // create an info window object that is at most 300px wide
+	  var infowindow = new google.maps.InfoWindow({ maxWidth: 300 });
+	  
+
+	  // add an event handler to our marker
+	  // notice the variable name 'marker' below matches the variable name of
+	  // the marker we created earlier
+	  google.maps.event.addListener(marker1, 'click', function() {
+	    // store the time right now (to demonstrate that a new info window is created
+	    // each time you click)
+	    var now = new Date();
+
+	    // create a string of HTML (how could we do this better? hmmm)
+	    var html = "<section class=\"overlay clearfix\">";
+	    html += "<p>Hey! It's " + now + "! Time for an info window!</p>";
+	    html += "<aside>I'm an aside. You can put any markup you want in here.</aside></section>";
+
+	    // put this html in the info window
+	    infowindow.setContent(html);
+
+	    // open the info window on our map (gmap), centered at this marker (this)
+	    infowindow.open(gmap, this);
+	  });
+	  google.maps.event.addListener(marker1, 'click', function() {
+	    // store the time right now (to demonstrate that a new info window is created
+	    // each time you click)
+	    var now = new Date();
+
+	    // create a string of HTML (how could we do this better? hmmm)
+	    var html = "<section class=\"overlay clearfix\">";
+	    html += "<p>Hey! It's " + now + "! Time for an info window!</p>";
+	    html += "<aside>I'm an aside. You can put any markup you want in here.</aside></section>";
+
+	    // put this html in the info window
+	    infowindow.setContent(html);
+
+	    // open the info window on our map (gmap), centered at this marker (this)
+	    infowindow.open(gmap, this);
+	  });
+	  // we want high accuracy, will wait 1 second for a response, and will accept
+	  // location information no more than 2 seconds old
+	  var lookup_options = {
+	    enableHighAccuracy: true,
+	    timeout: 1000,
+	    maximumAge: 2000
+	  };
+	  // start up a watcher, using high accuracy
+	  watcher = navigator.geolocation.watchPosition(found, not_found, {enableHighAccuracy: true});
+
+	  // do some stuff that's not creepy
+
+	  // stop the watching process
+	  navigator.geolocation.clearWatch(watcher);
+	  navigator.geolocation.getCurrentPosition(found, not_found, lookup_options);
+	  navigator.geolocation.getCurrentPosition(found, not_found);
+
+	  function found(position) {
+	    // do stuff with the position
+		console.log(position);
+		gmap.setCenter(new  google.maps.LatLng(position.coords.latitude,position.coords.longitude));
+		
+  	  var userMarker_options = {
+  	    position: glatlng,
+  	    map: gmap,
+  	    title: "You!",
+  		animation: google.maps.Animation.DROP,
+  	    icon: 'face2.png'
+  	  };
+  	  var userMarker = new google.maps.Marker(userMarker_options);
+  	  google.maps.event.addListener(userMarker, 'click', function() {
+  	    var now = new Date();
+
+  	    // create a string of HTML (how could we do this better? hmmm)
+  	    var html = "<section class=\"overlay clearfix\">";
+  	    html += "<p>Here you are!</p>";
+  
+
+  	    // put this html in the info window
+  	    infowindow.setContent(html);
+
+  	    // open the info window on our map (gmap), centered at this marker (this)
+  	    infowindow.open(gmap, this);
+  	  });
+  	  // we want high accuracy, will wait 1 second for a response, and will accept
+  	  // location information no more than 2 seconds old
+  	  var lookup_options = {
+  	    enableHighAccuracy: true,
+  	    timeout: 1000,
+  	    maximumAge: 2000
+	  }
+	  }
+
+	  function not_found(error) {
+	    // notify the user of the error
+	  }
+  </script>
 </body>
 </html>
